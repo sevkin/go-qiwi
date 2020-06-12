@@ -1,0 +1,55 @@
+get:
+  operationId: getChequeBytes
+  tags: [cheque]
+  description:
+    Файл квитанции электронная квитанция (чек) по определенной транзакции
+    из истории платежей в формате PDF/JPEG в виде файла
+    https://developer.qiwi.com/ru/qiwi-wallet-personal/?http#payment_receipt
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: transactionId
+      required: true
+      description: номер транзакции из истории платежей
+      schema:
+        type: integer
+    - in: query
+      name: type
+      description: Тип платежа. Возможные значения
+        - IN - пополнение
+        - OUT - платеж
+        - QIWI_CARD - платеж с карт QIWI (QVC, QVP)
+      schema:
+        type: string
+        enum:
+          - IN
+          - OUT
+          - QIWI_CARD
+    - in: query
+      name: format
+      schema:
+        type: string
+        enum:
+          - PDF
+          - JPEG
+  responses:
+    "200":
+      description: файл выбранного формата в бинарном виде
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+              minimum: 1
+              # TODO many lines in array? check real responses
+              maximum: 1
+    "401":
+      description: Unauthorized
+    "403":
+      description: Forbidden
+    "404":
+      description: Not Found
+    default:
+      description: stupid undocumented errors

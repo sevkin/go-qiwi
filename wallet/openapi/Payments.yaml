@@ -1,0 +1,108 @@
+get:
+  operationId: getPaymentHistoryByUser
+  tags: [history]
+  description: выгружает список платежей и пополнений кошелька
+    https://developer.qiwi.com/ru/qiwi-wallet-personal/?http#payments_list
+    Максимальная частота запросов -
+    не более 100 запросов в минуту для одного и того же номера кошелька.
+    При превышении доступ к API блокируется на 5 минут.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: personId
+      required: true
+      description: номер кошелька пользователя
+      schema:
+        type: integer
+    - in: query
+      name: rows
+      description: Число платежей в ответе, для разбивки отчета на части.
+        Целое число от 1 до 50
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+    - in: query
+      name: operation
+      description: |-
+        Тип операций в отчете, для отбора. Допустимые значения
+        - ALL - все операции
+        - IN - только пополнения
+        - OUT - только платежи
+        - QIWI_CARD - только платежи по картам QIWI (QVC, QVP)
+      schema:
+        type: string
+        enum:
+          - ALL
+          - IN
+          - OUT
+          - QIWI_CARD
+        default: ALL
+    - in: query
+      name: sources
+      description: Список источников платежа, для фильтра. Допустимые значения
+
+        - QW_RUB - рублевый счет кошелька
+
+        - QW_USD - счет кошелька в долларах
+
+        - QW_EUR - счет кошелька в евро
+
+        - CARD - привязанные и непривязанные к кошельку банковские карты
+
+        - MK - счет мобильного оператора. Если не указан, учитываются все источники
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - QW_RUB
+            - QW_USD
+            - QW_EUR
+            - CARD
+            - MK
+    - in: query
+      name: startDate
+      description: Начальная дата поиска платежей.
+        Используется только вместе с endDate.
+        По умолчанию, равна суточному сдвигу от текущей даты по московскому времени.
+        Максимальный допустимый интервал между startDate и endDate - 90 календарных дней.
+      schema:
+        type: string
+        format: date-time
+    - in: query
+      name: endDate
+      description: Конечная дата поиска платежей. Используется только вместе со
+        startDate. По умолчанию, равна текущим дате/времени по московскому
+        времени.
+      schema:
+        type: string
+        format: date-time
+    - in: query
+      name: nextTxnDate
+      description: Дата транзакции для начала отчета
+        (должна быть равна параметру nextTxnDate в предыдущем списке).
+        Используется только вместе с nextTxnId
+      schema:
+        type: string
+        format: date-time
+    - in: query
+      name: nextTxnId
+      description: Номер транзакции для начала отчета
+        (должен быть равен параметру nextTxnId в предыдущем списке).
+        Используется только вместе с nextTxnDate
+      schema:
+        type: integer
+  responses:
+    "200":
+      description: список платежей из истории кошелька, соответствующих заданному фильтру
+      content:
+        application/json:
+          schema:
+            $ref: "../openapi.yaml#/components/schemas/Payments"
+    default:
+      description: stupid undocumented errors

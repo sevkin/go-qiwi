@@ -1,0 +1,26 @@
+type: object
+properties:
+  incomingTotal:
+    type: array
+    description: Данные о входящих платежах (пополнениях), отдельно по каждой валюте
+    items:
+      type: object
+      properties:
+        amount:
+          type: number
+          description: Сумма пополнений за период
+        currency:
+          type: string
+          description: Валюта пополнений
+  outgoingTotal:
+    type: array
+    description: Данные об исходящих платежах, отдельно по каждой валюте
+    items:
+      type: object
+      properties:
+        amount:
+          type: number
+          description: Сумма платежей за период
+        currency:
+          type: string
+          description: Валюта платежей

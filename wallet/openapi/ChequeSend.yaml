@@ -1,0 +1,52 @@
+post:
+  operationId: sendCheque
+  tags: [cheque]
+  description:
+    Отправка электронной квитанции (чека) по определенной транзакции из истории платежей на электронную почту
+    https://developer.qiwi.com/ru/qiwi-wallet-personal/?http#payment_receipt
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: transactionId
+      required: true
+      description: номер транзакции из истории платежей
+      schema:
+        type: integer
+    - in: query
+      name: type
+      description: |-
+        Тип платежа. Возможные значения
+        - IN - пополнение
+        - OUT - платеж
+        - QIWI_CARD - платеж с карт QIWI (QVC, QVP)
+      schema:
+        type: string
+        enum:
+          - IN
+          - OUT
+          - QIWI_CARD
+  requestBody:
+    content:
+      application/json:
+        schema:
+          required:
+            - email
+          type: object
+          properties:
+            email:
+              type: string
+              description: Адрес для отправки электронной квитанции
+  responses:
+    "201":
+      description: Created
+    "204":
+      description: No Content
+    "401":
+      description: Unauthorized
+    "403":
+      description: Forbidden
+    "404":
+      description: Not Found
+    default:
+      description: stupid undocumented errors

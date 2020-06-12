@@ -1,0 +1,137 @@
+type: object
+properties:
+  authInfo:
+    type: object
+    description: Текущие настройки авторизации
+    properties:
+      personId:
+        type: integer
+        description: Номер кошелька
+      registrationDate:
+        type: string
+        format: date-time
+        description: Дата/время регистрации QIWI Кошелька (через сайт/мобильное
+          приложение, либо другим способом)
+      boundEmail:
+        type: string
+        description: E-mail, привязанный к кошельку. Если отсутствует, то null
+      ip:
+        type: string
+        description: IP-адрес последней пользовательской сессии
+      lastLoginDate:
+        type: string
+        format: date-time
+        description: Дата/время последней сессии в QIWI Кошельке
+      mobilePinInfo:
+        type: object
+        description: Данные о PIN-коде мобильного приложения QIWI Кошелька
+        properties:
+          mobilePinUsed:
+            type: boolean
+            description: Логический признак использования PIN-кода (фактически
+              означает, что мобильное приложение используется)
+          lastMobilePinChange:
+            type: string
+            format: date-time
+            description: Дата/время последнего изменения PIN-кода мобильного
+              приложения QIWI Кошелька
+          nextMobilePinChange:
+            type: string
+            format: date-time
+            description: Дата/время следующего (планового) изменения PIN-кода
+              мобильного приложения QIWI Кошелька
+      passInfo:
+        type: object
+        description: Данные об использовании пароля к сайту qiwi.com
+        properties:
+          passwordUsed:
+            type: boolean
+            description: Логический признак использования пароля (фактически означает
+              использование сайта qiwi.com)
+          lastPassChange:
+            type: string
+            format: date-time
+            description: Дата/время последнего изменения пароля сайта qiwi.com
+          nextPassChange:
+            type: string
+            format: date-time
+            description: Дата/время следующего (планового) изменения пароля сайта
+              qiwi.com
+      pinInfo:
+        type: object
+        description: Данные об использовании PIN-кода к приложению QIWI Кошелька на
+          QIWI терминалах самообслуживания
+        properties:
+          pinUsed:
+            type: boolean
+            description: Логический признак использования PIN-кода для терминала
+              (фактически означает факт использования приложения QIWI
+              Кошелька на терминале)
+  contractInfo:
+    type: object
+    description: Информация о кошельке
+    properties:
+      blocked:
+        type: boolean
+        description: Логический признак блокировки кошелька
+      contractId:
+        type: integer
+        description: Номер кошелька
+      creationDate:
+        type: string
+        format: date-time
+        description: Дата/время создания QIWI Кошелька (через сайт/мобильное
+          приложение, либо при первом пополнении, либо другим способом)
+      features:
+        type: array
+        description: Служебная информация
+        items:
+          type: object
+      identificationInfo:
+        type: array
+        description: Данные об идентификации пользователя
+        items:
+          type: object
+          properties:
+            bankAlias:
+              type: string
+              description: >-
+                Акроним системы, в которой пользователь получил
+                идентификацию
+
+                - QIWI - QIWI Кошелек
+            identificationLevel:
+              type: string
+              description: |-
+                Текущий уровень идентификации кошелька. Возможные значения
+                - ANONYMOUS - без идентификации
+                - SIMPLE, VERIFIED - упрощенная идентификация
+                - FULL - полная идентификация
+  userInfo:
+    type: object
+    description: Прочие пользовательские данные
+    properties:
+      defaultPayCurrency:
+        type: integer
+        description: Код валюты баланса кошелька по умолчанию (number-3 ISO-4217)
+      defaultPaySource:
+        type: integer
+        description: Служебная информация
+      email:
+        type: string
+        description: E-mail пользователя
+      firstTxnId:
+        type: integer
+        description: Номер первой транзакции после регистрации
+      language:
+        type: string
+        description: Служебная информация
+      operator:
+        type: string
+        description: Название мобильного оператора номера пользователя
+      phoneHash:
+        type: string
+        description: Служебная информация
+      promoEnabled:
+        type: string
+        description: Служебная информация

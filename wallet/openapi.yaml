@@ -1,0 +1,67 @@
+openapi: 3.0.0
+info:
+  title: "API QIWI Кошелька"
+  version: "git:ab28681"
+  contact:
+    name: QIWI
+    url: https://developer.qiwi.com/
+  description: Автоматизируйте работу вашего QIWI кошелька (если, конечно, он у вас есть)
+tags:
+  - name: profile
+    description: профиль пользователя
+  - name: identification
+    description: идентификация пользователя
+  # - name: token
+  # TODO  description: выпуск токена с расширенной функциональностью
+  - name: limits
+    description: лимиты кошелька
+  - name: history
+    description: история платежей
+  - name: cheque
+    description: чеки
+  - name: balance
+    description: баланс кошелька
+  - name: payments
+    description: платежи
+  - name: invoices
+    description: счета
+  - name: webhooks
+    description: уведомления (хуки)
+servers:
+  - url: https://edge.qiwi.com
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    PersonProfile:
+      $ref: "openapi/schemas/PersonProfile.yaml"
+    Identification:
+      $ref: "openapi/schemas/Identification.yaml"
+    Limits:
+      $ref: "openapi/schemas/Limits.yaml"
+    Payments:
+      $ref: "openapi/schemas/Payments.yaml"
+    PaymentsTotal:
+      $ref: "openapi/schemas/PaymentsTotal.yaml"
+    Transaction:
+      $ref: "openapi/schemas/Transaction.yaml"
+paths:
+  "/person-profile/v1/profile/current":
+    $ref: "openapi/PersonProfile.yaml"
+  "/identification/v1/persons/{personId}/identification":
+    $ref: "openapi/Identification.yaml"
+  "/qw-limits/v1/persons/{personId}/actual-limits":
+    $ref: "openapi/Limits.yaml"
+  "/payment-history/v2/persons/{personId}/payments":
+    $ref: "openapi/Payments.yaml"
+  "/payment-history/v2/persons/{personId}/payments/total":
+    $ref: "openapi/PaymentsTotal.yaml"
+  "/payment-history/v2/transactions/{transactionId}":
+    $ref: "openapi/Transaction.yaml"
+  "/payment-history/v1/transactions/{transactionId}/cheque/file":
+    $ref: "openapi/ChequeFile.yaml"
+  "/payment-history/v1/transactions/{transactionId}/cheque/send":
+    $ref: "openapi/ChequeSend.yaml"

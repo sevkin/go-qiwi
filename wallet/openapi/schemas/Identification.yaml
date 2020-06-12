@@ -1,0 +1,39 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: Номер кошелька пользователя
+  type:
+    type: string
+    description: >-
+      Текущий уровень идентификации кошелька
+
+      - SIMPLE - без идентификации
+
+      - VERIFIED - упрощенная идентификация (данные для идентификации успешно прошли проверку)
+
+      - FULL – если кошелек уже ранее получал полную идентификацию по данным ФИО, номеру паспорта и дате рождения.
+  birthDate:
+    type: string
+    description: Дата рождения пользователя
+  firstName:
+    type: string
+    description: Имя пользователя
+  middleName:
+    type: string
+    description: Отчество пользователя
+  lastName:
+    type: string
+    description: Фамилия пользователя
+  passport:
+    type: string
+    description: Серия и номер паспорта пользователя
+  inn:
+    type: string
+    description: ИНН пользователя
+  snils:
+    type: string
+    description: Номер СНИЛС пользователя
+  oms:
+    type: string
+    description: Номер полиса ОМС пользователя

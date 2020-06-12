@@ -1,0 +1,56 @@
+get:
+  operationId: getLimits
+  tags: [limits]
+  description: возвращает текущие уровни лимитов по операциям в QIWI Кошельке
+    https://developer.qiwi.com/ru/qiwi-wallet-personal/?http#limits
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: personId
+      required: true
+      description: номер кошелька пользователя
+      schema:
+        type: integer
+    - in: query
+      name: types
+      required: true
+      description: Список типов операций, по которым запрашиваются лимиты.
+        Допустимые типы операций
+
+        - REFILL - максимальный допустимый остаток на счёте
+
+        - TURNOVER - оборот в месяц
+
+        - PAYMENTS_P2P - переводы на другие кошельки в месяц
+
+        - PAYMENTS_PROVIDER_INTERNATIONALS - платежи в адрес иностранных компаний в месяц
+
+        - PAYMENTS_PROVIDER_PAYOUT - Переводы на банковские счета и карты, кошельки других систем
+
+        - WITHDRAW_CASH - снятие наличных в месяц.
+
+        Должен быть указан хотя бы один тип операций.
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - REFILL
+            - TURNOVER
+            - PAYMENTS_P2P
+            - PAYMENTS_PROVIDER_INTERNATIONALS
+            - PAYMENTS_PROVIDER_PAYOUT
+            - WITHDRAW_CASH
+        minItems: 1
+        uniqueItems: true
+  responses:
+    "200":
+      description: массив лимитов по операциям QIWI Кошелька
+      content:
+        application/json:
+          schema:
+            $ref: "../openapi.yaml#/components/schemas/Limits"
+    default:
+      description: stupid undocumented errors

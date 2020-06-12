@@ -1,0 +1,36 @@
+get:
+  operationId: getPaymentHistoryByTransaction
+  tags: [history]
+  description: информация по определенной транзакции из истории платежей
+    https://developer.qiwi.com/ru/qiwi-wallet-personal/?http#txn_info
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: transactionId
+      required: true
+      description: номер транзакции из истории платежей (параметр data[].txnId в ответе)
+      schema:
+        type: integer
+    - in: query
+      name: type
+      description: |-
+        Тип платежа. Возможные значения
+        - IN - пополнение
+        - OUT - платеж
+        - QIWI_CARD - платеж с карт QIWI (QVC, QVP)
+      schema:
+        type: string
+        enum:
+          - IN
+          - OUT
+          - QIWI_CARD
+  responses:
+    "200":
+      description: данные о транзакции
+      content:
+        application/json:
+          schema:
+            $ref: "../openapi.yaml#/components/schemas/Transaction"
+    default:
+      description: stupid undocumented errors

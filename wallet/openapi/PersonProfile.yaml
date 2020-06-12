@@ -1,0 +1,39 @@
+get:
+  operationId: getPersonProfile
+  tags: [profile]
+  description: возвращает информацию о профиле -
+    наборе пользовательских данных и настроек QIWI кошелька
+    https://developer.qiwi.com/ru/qiwi-wallet-personal/?http#profile
+  security:
+    - Bearer: []
+  parameters:
+    - name: authInfoEnabled
+      in: query
+      required: false
+      description: выгрузить настройки авторизации пользователя
+      schema:
+        type: boolean
+        default: true
+    - name: contractInfoEnabled
+      in: query
+      required: false
+      description: выгрузить данные о кошельке пользователя
+      schema:
+        type: boolean
+        default: true
+    - name: userInfoEnabled
+      in: query
+      required: false
+      description: выгрузить прочие пользовательские данные
+      schema:
+        type: boolean
+        default: true
+  responses:
+    "200":
+      description: данные о профиле пользователя
+      content:
+        application/json:
+          schema:
+            $ref: "../openapi.yaml#/components/schemas/PersonProfile"
+    default:
+      description: stupid undocumented errors

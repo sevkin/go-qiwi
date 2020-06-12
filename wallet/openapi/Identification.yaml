@@ -1,0 +1,55 @@
+get:
+  operationId: getIdentification
+  tags: [identification]
+  description:
+    выгружает маскированные данные и статус идентификации QIWI кошелька
+    https://developer.qiwi.com/ru/qiwi-wallet-personal/?http#ident
+  security:
+    - Bearer: []
+  parameters:
+    - name: personId
+      in: path
+      required: true
+      description: номер кошелька пользователя
+      schema:
+        type: integer
+  responses:
+    "200":
+      description: маскированные данные идентификации кошелька
+      content:
+        application/json:
+          schema:
+            $ref: "../openapi.yaml#/components/schemas/Identification"
+    default:
+      description: stupid undocumented errors
+post:
+  operationId: postIdentification
+  tags: [identification]
+  description: отправляет данные для упрощенной идентификации QIWI кошелька
+    https://developer.qiwi.com/ru/qiwi-wallet-personal/?http#ident_data
+    Допускается идентифицировать не более 5 кошельков на одного владельца.
+    См. п. 3.1.1 ч. III [Оферты сервиса "QIWI
+    Wallet"](https://static.qiwi.com/ru/doc/oferta_lk.pdf)
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: personId
+      required: true
+      description: номер кошелька пользователя
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: "../openapi.yaml#/components/schemas/Identification"
+  responses:
+    "200":
+      description: подтверждение идентификации кошелька
+      content:
+        application/json:
+          schema:
+            $ref: "../openapi.yaml#/components/schemas/Identification"
+    default:
+      description: stupid undocumented errors

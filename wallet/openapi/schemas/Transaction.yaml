@@ -1,0 +1,126 @@
+type: object
+properties:
+  txnId:
+    type: integer
+    description: Копия параметра transactionId из запроса
+  personId:
+    type: integer
+    description: Номер кошелька
+  date:
+    type: string
+    format: date-time
+    description: Дата/время платежа, время московское (в формате
+      ГГГГ-ММ-ДД'T'чч:мм:сс+03:00)
+  errorCode:
+    type: integer
+    description: Код ошибки платежа
+  error:
+    type: string
+    description: Описание ошибки
+  type:
+    type: string
+    description: Копия параметра type из запроса
+  status:
+    type: string
+    description: |-
+      Статус платежа. Возможные значения
+      - WAITING - платеж проводится
+      - SUCCESS - успешный платеж
+      - ERROR - ошибка платежа
+    enum:
+      - WAITING
+      - SUCCESS
+      - ERROR
+  statusText:
+    type: string
+    description: Текстовое описание статуса платежа
+  trmTxnId:
+    type: string
+    description: Клиентский ID транзакции
+  account:
+    type: string
+    description: Для платежей - номер счета получателя. Для пополнений - номер
+      отправителя, терминала или название агента пополнения кошелька
+  sum:
+    type: object
+    description: Данные о сумме платежа или пополнения.
+    properties:
+      amount:
+        type: number
+        description: сумма
+      currency:
+        type: string
+        description: валюта
+  commission:
+    type: object
+    description: Данные о комиссии платежа.
+    properties:
+      amount:
+        type: number
+        description: сумма
+      currency:
+        type: string
+        description: валюта
+  total:
+    type: object
+    description: Данные о фактической сумме платежа или пополнения.
+    properties:
+      amount:
+        type: number
+        description: сумма (равна сумме платежа sum.amount и комиссии
+          commission.amount)
+      currency:
+        type: string
+        description: валюта
+  provider:
+    type: object
+    description: Данные о провайдере.
+    properties:
+      id:
+        type: integer
+        description: ID провайдера в QIWI Wallet
+      shortName:
+        type: string
+        description: краткое наименование провайдера
+      longName:
+        type: string
+        description: развернутое наименование провайдера
+      logoUrl:
+        type: string
+        description: ссылка на логотип провайдера
+      description:
+        type: string
+        description: описание провайдера (HTML)
+      keys:
+        type: string
+        description: список ключевых слов
+      siteUrl:
+        type: string
+        description: сайт провайдера
+  source:
+    type: object
+    description: Служебная информация
+  comment:
+    type: string
+    description: Комментарий к платежу
+  currencyRate:
+    type: number
+    description: Курс конвертации (если применяется в транзакции)
+  extras:
+    type: object
+    description: Служебная информация
+  chequeReady:
+    type: boolean
+    description: Специальное поле
+  bankDocumentAvailable:
+    type: boolean
+    description: Специальное поле
+  repeatPaymentEnabled:
+    type: boolean
+    description: Специальное поле
+  favoritePaymentEnabled:
+    type: boolean
+    description: Специальное поле
+  regularPaymentEnabled:
+    type: boolean
+    description: Специальное поле

@@ -1,0 +1,29 @@
+type: object
+properties:
+  limits:
+    type: object
+    description: Описание лимитов
+    properties:
+      RU:
+        type: array
+        description: Массив лимитов на операции
+        items:
+          type: object
+          properties:
+            type:
+              type: string
+              description: Тип операций, на которые действует данный лимит
+            currency:
+              type: string
+              description: Валюта операций
+            max:
+              type: number
+              description: Значение лимита
+            spent:
+              type: number
+              description: Сумма, потраченная по данным операциям
+            rest:
+              type: number
+              description:
+                Остаток лимита, который можно потратить в данный период
+                (период задается в параметре interval)
