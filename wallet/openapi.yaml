@@ -49,18 +49,23 @@ components:
     Transaction:
       $ref: "openapi/schemas/Transaction.yaml"
 paths:
+  # профиль
   "/person-profile/v1/profile/current":
     $ref: "openapi/PersonProfile.yaml"
+  # идентификация
   "/identification/v1/persons/{personId}/identification":
     $ref: "openapi/Identification.yaml"
+  # лимиты
   "/qw-limits/v1/persons/{personId}/actual-limits":
     $ref: "openapi/Limits.yaml"
+  #  история
   "/payment-history/v2/persons/{personId}/payments":
     $ref: "openapi/Payments.yaml"
   "/payment-history/v2/persons/{personId}/payments/total":
     $ref: "openapi/PaymentsTotal.yaml"
   "/payment-history/v2/transactions/{transactionId}":
     $ref: "openapi/Transaction.yaml"
+  # чеки
   "/payment-history/v1/transactions/{transactionId}/cheque/file":
     $ref: "openapi/ChequeFile.yaml"
   "/payment-history/v1/transactions/{transactionId}/cheque/send":
