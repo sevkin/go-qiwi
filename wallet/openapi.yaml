@@ -48,6 +48,10 @@ components:
       $ref: "openapi/schemas/PaymentsTotal.yaml"
     Transaction:
       $ref: "openapi/schemas/Transaction.yaml"
+    Accounts:
+      $ref: "openapi/schemas/Accounts.yaml"
+    AccountsOffer:
+      $ref: "openapi/schemas/AccountsOffer.yaml"
 paths:
   # профиль
   "/person-profile/v1/profile/current":
@@ -70,3 +74,11 @@ paths:
     $ref: "openapi/ChequeFile.yaml"
   "/payment-history/v1/transactions/{transactionId}/cheque/send":
     $ref: "openapi/ChequeSend.yaml"
+  # баланс
+  "/funding-sources/v2/persons/{personId}/accounts":
+    $ref: "openapi/Accounts.yaml"
+  "/funding-sources/v2/persons/{personId}/accounts/offer":
+    $ref: "openapi/AccountsOffer.yaml"
+  "/funding-sources/v2/persons/{personId}/accounts/{accountAlias}":
+    $ref: "openapi/AccountAlias.yaml"
+  # платежи

@@ -1,0 +1,22 @@
+get:
+  operationId: getAccountsOffer
+  tags: [balance]
+  description: отображает псевдонимы счетов, доступных для создания в вашем QIWI Кошельке
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: personId
+      required: true
+      description: номер кошелька пользователя
+      schema:
+        type: integer
+  responses:
+    "200":
+      description: содержит данные о счетах, которые можно создать
+      content:
+        application/json:
+          schema:
+            $ref: "../openapi.yaml#/components/schemas/AccountsOffer"
+    default:
+      description: stupid undocumented errors

@@ -87,6 +87,22 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetByAlias request
+	GetByAlias(ctx context.Context, personId int) (*http.Response, error)
+
+	// CreateAccount request  with any body
+	CreateAccountWithBody(ctx context.Context, personId int, contentType string, body io.Reader) (*http.Response, error)
+
+	CreateAccount(ctx context.Context, personId int, body CreateAccountJSONRequestBody) (*http.Response, error)
+
+	// GetAccountsOffer request
+	GetAccountsOffer(ctx context.Context, personId int) (*http.Response, error)
+
+	// SaveAccountAttributes request  with any body
+	SaveAccountAttributesWithBody(ctx context.Context, personId int, accountAlias string, contentType string, body io.Reader) (*http.Response, error)
+
+	SaveAccountAttributes(ctx context.Context, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody) (*http.Response, error)
+
 	// GetIdentification request
 	GetIdentification(ctx context.Context, personId int) (*http.Response, error)
 
@@ -117,6 +133,96 @@ type ClientInterface interface {
 
 	// GetLimits request
 	GetLimits(ctx context.Context, personId int, params *GetLimitsParams) (*http.Response, error)
+}
+
+func (c *Client) GetByAlias(ctx context.Context, personId int) (*http.Response, error) {
+	req, err := NewGetByAliasRequest(c.Server, personId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if c.RequestEditor != nil {
+		err = c.RequestEditor(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAccountWithBody(ctx context.Context, personId int, contentType string, body io.Reader) (*http.Response, error) {
+	req, err := NewCreateAccountRequestWithBody(c.Server, personId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if c.RequestEditor != nil {
+		err = c.RequestEditor(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAccount(ctx context.Context, personId int, body CreateAccountJSONRequestBody) (*http.Response, error) {
+	req, err := NewCreateAccountRequest(c.Server, personId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if c.RequestEditor != nil {
+		err = c.RequestEditor(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAccountsOffer(ctx context.Context, personId int) (*http.Response, error) {
+	req, err := NewGetAccountsOfferRequest(c.Server, personId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if c.RequestEditor != nil {
+		err = c.RequestEditor(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SaveAccountAttributesWithBody(ctx context.Context, personId int, accountAlias string, contentType string, body io.Reader) (*http.Response, error) {
+	req, err := NewSaveAccountAttributesRequestWithBody(c.Server, personId, accountAlias, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if c.RequestEditor != nil {
+		err = c.RequestEditor(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SaveAccountAttributes(ctx context.Context, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody) (*http.Response, error) {
+	req, err := NewSaveAccountAttributesRequest(c.Server, personId, accountAlias, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if c.RequestEditor != nil {
+		err = c.RequestEditor(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetIdentification(ctx context.Context, personId int) (*http.Response, error) {
@@ -282,6 +388,173 @@ func (c *Client) GetLimits(ctx context.Context, personId int, params *GetLimitsP
 		}
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetByAliasRequest generates requests for GetByAlias
+func NewGetByAliasRequest(server string, personId int) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParam("simple", false, "personId", personId)
+	if err != nil {
+		return nil, err
+	}
+
+	queryUrl, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	basePath := fmt.Sprintf("/funding-sources/v2/persons/%s/accounts", pathParam0)
+	if basePath[0] == '/' {
+		basePath = basePath[1:]
+	}
+
+	queryUrl, err = queryUrl.Parse(basePath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryUrl.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateAccountRequest calls the generic CreateAccount builder with application/json body
+func NewCreateAccountRequest(server string, personId int, body CreateAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAccountRequestWithBody(server, personId, "application/json", bodyReader)
+}
+
+// NewCreateAccountRequestWithBody generates requests for CreateAccount with any type of body
+func NewCreateAccountRequestWithBody(server string, personId int, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParam("simple", false, "personId", personId)
+	if err != nil {
+		return nil, err
+	}
+
+	queryUrl, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	basePath := fmt.Sprintf("/funding-sources/v2/persons/%s/accounts", pathParam0)
+	if basePath[0] == '/' {
+		basePath = basePath[1:]
+	}
+
+	queryUrl, err = queryUrl.Parse(basePath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryUrl.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+	return req, nil
+}
+
+// NewGetAccountsOfferRequest generates requests for GetAccountsOffer
+func NewGetAccountsOfferRequest(server string, personId int) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParam("simple", false, "personId", personId)
+	if err != nil {
+		return nil, err
+	}
+
+	queryUrl, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	basePath := fmt.Sprintf("/funding-sources/v2/persons/%s/accounts/offer", pathParam0)
+	if basePath[0] == '/' {
+		basePath = basePath[1:]
+	}
+
+	queryUrl, err = queryUrl.Parse(basePath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryUrl.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSaveAccountAttributesRequest calls the generic SaveAccountAttributes builder with application/json body
+func NewSaveAccountAttributesRequest(server string, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSaveAccountAttributesRequestWithBody(server, personId, accountAlias, "application/json", bodyReader)
+}
+
+// NewSaveAccountAttributesRequestWithBody generates requests for SaveAccountAttributes with any type of body
+func NewSaveAccountAttributesRequestWithBody(server string, personId int, accountAlias string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParam("simple", false, "personId", personId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParam("simple", false, "accountAlias", accountAlias)
+	if err != nil {
+		return nil, err
+	}
+
+	queryUrl, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	basePath := fmt.Sprintf("/funding-sources/v2/persons/%s/accounts/%s", pathParam0, pathParam1)
+	if basePath[0] == '/' {
+		basePath = basePath[1:]
+	}
+
+	queryUrl, err = queryUrl.Parse(basePath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryUrl.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+	return req, nil
 }
 
 // NewGetIdentificationRequest generates requests for GetIdentification
@@ -960,6 +1233,22 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetByAlias request
+	GetByAliasWithResponse(ctx context.Context, personId int) (*GetByAliasResponse, error)
+
+	// CreateAccount request  with any body
+	CreateAccountWithBodyWithResponse(ctx context.Context, personId int, contentType string, body io.Reader) (*CreateAccountResponse, error)
+
+	CreateAccountWithResponse(ctx context.Context, personId int, body CreateAccountJSONRequestBody) (*CreateAccountResponse, error)
+
+	// GetAccountsOffer request
+	GetAccountsOfferWithResponse(ctx context.Context, personId int) (*GetAccountsOfferResponse, error)
+
+	// SaveAccountAttributes request  with any body
+	SaveAccountAttributesWithBodyWithResponse(ctx context.Context, personId int, accountAlias string, contentType string, body io.Reader) (*SaveAccountAttributesResponse, error)
+
+	SaveAccountAttributesWithResponse(ctx context.Context, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody) (*SaveAccountAttributesResponse, error)
+
 	// GetIdentification request
 	GetIdentificationWithResponse(ctx context.Context, personId int) (*GetIdentificationResponse, error)
 
@@ -990,6 +1279,92 @@ type ClientWithResponsesInterface interface {
 
 	// GetLimits request
 	GetLimitsWithResponse(ctx context.Context, personId int, params *GetLimitsParams) (*GetLimitsResponse, error)
+}
+
+type GetByAliasResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Accounts
+}
+
+// Status returns HTTPResponse.Status
+func (r GetByAliasResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetByAliasResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAccountsOfferResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AccountsOffer
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAccountsOfferResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAccountsOfferResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SaveAccountAttributesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SaveAccountAttributesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SaveAccountAttributesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetIdentificationResponse struct {
@@ -1189,6 +1564,58 @@ func (r GetLimitsResponse) StatusCode() int {
 	return 0
 }
 
+// GetByAliasWithResponse request returning *GetByAliasResponse
+func (c *ClientWithResponses) GetByAliasWithResponse(ctx context.Context, personId int) (*GetByAliasResponse, error) {
+	rsp, err := c.GetByAlias(ctx, personId)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetByAliasResponse(rsp)
+}
+
+// CreateAccountWithBodyWithResponse request with arbitrary body returning *CreateAccountResponse
+func (c *ClientWithResponses) CreateAccountWithBodyWithResponse(ctx context.Context, personId int, contentType string, body io.Reader) (*CreateAccountResponse, error) {
+	rsp, err := c.CreateAccountWithBody(ctx, personId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAccountWithResponse(ctx context.Context, personId int, body CreateAccountJSONRequestBody) (*CreateAccountResponse, error) {
+	rsp, err := c.CreateAccount(ctx, personId, body)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAccountResponse(rsp)
+}
+
+// GetAccountsOfferWithResponse request returning *GetAccountsOfferResponse
+func (c *ClientWithResponses) GetAccountsOfferWithResponse(ctx context.Context, personId int) (*GetAccountsOfferResponse, error) {
+	rsp, err := c.GetAccountsOffer(ctx, personId)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAccountsOfferResponse(rsp)
+}
+
+// SaveAccountAttributesWithBodyWithResponse request with arbitrary body returning *SaveAccountAttributesResponse
+func (c *ClientWithResponses) SaveAccountAttributesWithBodyWithResponse(ctx context.Context, personId int, accountAlias string, contentType string, body io.Reader) (*SaveAccountAttributesResponse, error) {
+	rsp, err := c.SaveAccountAttributesWithBody(ctx, personId, accountAlias, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSaveAccountAttributesResponse(rsp)
+}
+
+func (c *ClientWithResponses) SaveAccountAttributesWithResponse(ctx context.Context, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody) (*SaveAccountAttributesResponse, error) {
+	rsp, err := c.SaveAccountAttributes(ctx, personId, accountAlias, body)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSaveAccountAttributesResponse(rsp)
+}
+
 // GetIdentificationWithResponse request returning *GetIdentificationResponse
 func (c *ClientWithResponses) GetIdentificationWithResponse(ctx context.Context, personId int) (*GetIdentificationResponse, error) {
 	rsp, err := c.GetIdentification(ctx, personId)
@@ -1284,6 +1711,96 @@ func (c *ClientWithResponses) GetLimitsWithResponse(ctx context.Context, personI
 		return nil, err
 	}
 	return ParseGetLimitsResponse(rsp)
+}
+
+// ParseGetByAliasResponse parses an HTTP response from a GetByAliasWithResponse call
+func ParseGetByAliasResponse(rsp *http.Response) (*GetByAliasResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetByAliasResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Accounts
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAccountResponse parses an HTTP response from a CreateAccountWithResponse call
+func ParseCreateAccountResponse(rsp *http.Response) (*CreateAccountResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	}
+
+	return response, nil
+}
+
+// ParseGetAccountsOfferResponse parses an HTTP response from a GetAccountsOfferWithResponse call
+func ParseGetAccountsOfferResponse(rsp *http.Response) (*GetAccountsOfferResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAccountsOfferResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AccountsOffer
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSaveAccountAttributesResponse parses an HTTP response from a SaveAccountAttributesWithResponse call
+func ParseSaveAccountAttributesResponse(rsp *http.Response) (*SaveAccountAttributesResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SaveAccountAttributesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	}
+
+	return response, nil
 }
 
 // ParseGetIdentificationResponse parses an HTTP response from a GetIdentificationWithResponse call

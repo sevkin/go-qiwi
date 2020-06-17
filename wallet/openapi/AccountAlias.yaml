@@ -1,0 +1,34 @@
+patch:
+  operationId: saveAccountAttributes
+  tags: [balance]
+  description: выгружает текущие балансы счетов QIWI Кошелька
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: personId
+      required: true
+      description: номер кошелька пользователя
+      schema:
+        type: integer
+    - in: path
+      name: accountAlias
+      required: true
+      description: псевдоним счета в кошельке из списка счетов getByAlias
+      schema:
+        type: string
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            defaultAccount:
+              type: boolean
+              # required: true
+              description: Признак установки счета по умолчанию
+  responses:
+    "200":
+      description: success
+    default:
+      description: stupid undocumented errors

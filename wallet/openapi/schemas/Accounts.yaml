@@ -1,0 +1,52 @@
+type: object
+properties:
+  accounts:
+    type: array
+    description: Массив балансов
+    items:
+      type: object
+      properties:
+        alias:
+          type: string
+          description: Псевдоним пользовательского баланса
+        fsAlias:
+          type: string
+          description: Псевдоним банковского баланса
+        bankAlias:
+          type: string
+          description: Псевдоним банка
+        title:
+          type: string
+          description: Название соответствующего счета кошелька
+        hasBalance:
+          type: boolean
+          description: признак реального баланса в системе QIWI Кошелек
+            (не привязанная карта, не счет мобильного телефона и т.д.)
+        currency:
+          type: integer
+          description: Код валюты баланса (number-3 ISO-4217).
+            Возвращаются балансы в следующих валютах
+            - 643 - российский рубль
+            - 840 - американский доллар
+            - 978 - евро
+        type:
+          type: object
+          description: Сведения о счете
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+              description: Описание счета
+        balance:
+          type: object
+          description: Сведения о балансе данного счета.
+            Если вернулся null и при этом параметр accounts[].hasBalance равен true,
+            повторите запрос с дополнительными параметрами timeout=1000 и alias=accounts[].alias
+          properties:
+            amount:
+              type: number
+              description: Текущий баланс данного счета
+            currency:
+              type: integer
+              description: Код валюты баланса (number-3 ISO-4217)

@@ -1,0 +1,52 @@
+get:
+  operationId: getByAlias
+  tags: [balance]
+  description: выгружает текущие балансы счетов QIWI Кошелька
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: personId
+      required: true
+      description: номер кошелька пользователя
+      schema:
+        type: integer
+    # TODO add parameters timeout alias, see response -> balance.description
+  responses:
+    "200":
+      description: массив счетов QIWI Кошелька для фондирования платежей и
+        текущие балансы счетов
+      content:
+        application/json:
+          schema:
+            $ref: "../openapi.yaml#/components/schemas/Accounts"
+    default:
+      description: stupid undocumented errors
+post:
+  operationId: createAccount
+  tags: [balance]
+  description: создает новый счет и баланс в QIWI Кошельке.
+    Список доступных для создания счетов можно получить запросом getAccountsOffer
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: personId
+      required: true
+      description: номер кошелька пользователя
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            alias:
+              type: string
+              description: Псевдоним нового счета
+  responses:
+    "201":
+      description: created
+    default:
+      description: stupid undocumented errors

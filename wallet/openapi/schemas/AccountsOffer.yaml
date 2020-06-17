@@ -1,0 +1,12 @@
+type: object
+# FIXME { { "alias": "qw_wallet_eur", "currency": 978 }, {} }
+# https://developer.qiwi.com/ru/qiwi-wallet-personal/#funding_offer
+# properties:
+#   type: object
+#   properties:
+#     alias:
+#       type: string
+#       description: Псевдоним счета
+#     currency:
+#       type: integer
+#       description: ID валюты счета

@@ -7,6 +7,53 @@ import (
 	"time"
 )
 
+// Accounts defines model for Accounts.
+type Accounts struct {
+
+	// Массив балансов
+	Accounts *[]struct {
+
+		// Псевдоним пользовательского баланса
+		Alias *string `json:"alias,omitempty"`
+
+		// Сведения о балансе данного счета. Если вернулся null и при этом параметр accounts[].hasBalance равен true, повторите запрос с дополнительными параметрами timeout=1000 и alias=accounts[].alias
+		Balance *struct {
+
+			// Текущий баланс данного счета
+			Amount *float32 `json:"amount,omitempty"`
+
+			// Код валюты баланса (number-3 ISO-4217)
+			Currency *int `json:"currency,omitempty"`
+		} `json:"balance,omitempty"`
+
+		// Псевдоним банка
+		BankAlias *string `json:"bankAlias,omitempty"`
+
+		// Код валюты баланса (number-3 ISO-4217). Возвращаются балансы в следующих валютах - 643 - российский рубль - 840 - американский доллар - 978 - евро
+		Currency *int `json:"currency,omitempty"`
+
+		// Псевдоним банковского баланса
+		FsAlias *string `json:"fsAlias,omitempty"`
+
+		// признак реального баланса в системе QIWI Кошелек (не привязанная карта, не счет мобильного телефона и т.д.)
+		HasBalance *bool `json:"hasBalance,omitempty"`
+
+		// Название соответствующего счета кошелька
+		Title *string `json:"title,omitempty"`
+
+		// Сведения о счете
+		Type *struct {
+			Id *string `json:"id,omitempty"`
+
+			// Описание счета
+			Title *string `json:"title,omitempty"`
+		} `json:"type,omitempty"`
+	} `json:"accounts,omitempty"`
+}
+
+// AccountsOffer defines model for AccountsOffer.
+type AccountsOffer map[string]interface{}
+
 // Identification defines model for Identification.
 type Identification struct {
 
@@ -459,6 +506,20 @@ type Transaction struct {
 	Type *string `json:"type,omitempty"`
 }
 
+// CreateAccountJSONBody defines parameters for CreateAccount.
+type CreateAccountJSONBody struct {
+
+	// Псевдоним нового счета
+	Alias *string `json:"alias,omitempty"`
+}
+
+// SaveAccountAttributesJSONBody defines parameters for SaveAccountAttributes.
+type SaveAccountAttributesJSONBody struct {
+
+	// Признак установки счета по умолчанию
+	DefaultAccount *bool `json:"defaultAccount,omitempty"`
+}
+
 // PostIdentificationJSONBody defines parameters for PostIdentification.
 type PostIdentificationJSONBody Identification
 
@@ -582,6 +643,12 @@ type GetLimitsParams struct {
 	// Должен быть указан хотя бы один тип операций.
 	Types []string `json:"types"`
 }
+
+// CreateAccountRequestBody defines body for CreateAccount for application/json ContentType.
+type CreateAccountJSONRequestBody CreateAccountJSONBody
+
+// SaveAccountAttributesRequestBody defines body for SaveAccountAttributes for application/json ContentType.
+type SaveAccountAttributesJSONRequestBody SaveAccountAttributesJSONBody
 
 // PostIdentificationRequestBody defines body for PostIdentification for application/json ContentType.
 type PostIdentificationJSONRequestBody PostIdentificationJSONBody
