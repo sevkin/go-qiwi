@@ -29,8 +29,7 @@ func (s *WalletTestSuite) TestGetPersonID() {
 		Get("/person-profile/v1/profile/current").
 		MatchHeaders(map[string]string{
 			"Authorization": fmt.Sprintf(`^Bearer %s$`, token),
-			// TODO header not present
-			// "Accept": `^application/json`,
+			"Accept":        `^application/json`,
 		}).
 		// MatchParam("authInfoEnabled", "true").
 		MatchParam("contractInfoEnabled", "false").
@@ -66,7 +65,7 @@ func (s *WalletTestSuite) TestGetChequeBytes() {
 		Get(fmt.Sprintf("/payment-history/v1/transactions/%d/cheque/file", transactionID)).
 		MatchHeaders(map[string]string{
 			"Authorization": fmt.Sprintf(`^Bearer %s$`, token),
-			// "Accept":        `^application/json`,
+			"Accept":        `^application/json`,
 		}).
 		MatchParam("type", transactionType).
 		Reply(200).
@@ -99,8 +98,8 @@ func (s *WalletTestSuite) TestSendCheque() {
 		Post(fmt.Sprintf("/payment-history/v1/transactions/%d/cheque/send", transactionID)).
 		MatchHeaders(map[string]string{
 			"Authorization": fmt.Sprintf(`^Bearer %s$`, token),
-			// "Accept":        `^application/json`,
-			"Content-type": `^application/json`,
+			"Accept":        `^application/json`,
+			"Content-type":  `^application/json`,
 		}).
 		MatchParam("type", transactionType).
 		BodyString(fmt.Sprintf(`{"email":"%s"}`, notifyEmail)).

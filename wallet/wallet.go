@@ -3,6 +3,7 @@ package wallet
 import (
 	"context"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/deepmap/oapi-codegen/pkg/securityprovider"
@@ -25,7 +26,10 @@ func New(token string) (w *Wallet, err error) {
 
 		var client ClientWithResponsesInterface
 		if client, err = NewClientWithResponses(server,
-			WithRequestEditorFn(bearer.Intercept)); err == nil {
+			WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+				req.Header.Set("Accept", "application/json")
+				return bearer.Intercept(ctx, req)
+			})); err == nil {
 
 			w = &Wallet{
 				token:  token,
