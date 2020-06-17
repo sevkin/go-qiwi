@@ -13,9 +13,7 @@ const server = "https://edge.qiwi.com"
 
 // Wallet is a client wrapper for qiwi wallet
 type Wallet struct {
-	token  string
-	client ClientWithResponsesInterface
-	// personID int
+	ClientWithResponsesInterface
 }
 
 // New creates a new qiwi wallet
@@ -32,8 +30,7 @@ func New(token string) (w *Wallet, err error) {
 			})); err == nil {
 
 			w = &Wallet{
-				token:  token,
-				client: client,
+				ClientWithResponsesInterface: client,
 			}
 		}
 	}
@@ -54,7 +51,7 @@ func (w *Wallet) GetPersonID(ctx context.Context) (personID int, err error) {
 	)
 
 	var response *GetPersonProfileResponse
-	if response, err = w.client.GetPersonProfileWithResponse(ctx, getPersonIDParams); err == nil {
+	if response, err = w.GetPersonProfileWithResponse(ctx, getPersonIDParams); err == nil {
 
 		personID = *response.JSON200.AuthInfo.PersonId
 	}
@@ -69,7 +66,7 @@ func (w *Wallet) GetChequeBytes(ctx context.Context,
 	transactionID int, transactionType string, format string) (r io.Reader, err error) {
 
 	var response *GetChequeBytesResponse
-	if response, err = w.client.GetChequeBytesWithResponse(ctx, transactionID,
+	if response, err = w.GetChequeBytesWithResponse(ctx, transactionID,
 		&GetChequeBytesParams{
 			Type:   &transactionType,
 			Format: &format,
@@ -85,7 +82,7 @@ func (w *Wallet) GetChequeBytes(ctx context.Context,
 func (w *Wallet) SendCheque(ctx context.Context,
 	transactionID int, transactionType string, email string) (err error) {
 
-	_, err = w.client.SendChequeWithResponse(ctx, transactionID,
+	_, err = w.SendChequeWithResponse(ctx, transactionID,
 		&SendChequeParams{
 			Type: &transactionType,
 		},
