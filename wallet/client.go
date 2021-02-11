@@ -8,12 +8,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 )
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
@@ -29,16 +30,18 @@ type HttpRequestDoer interface {
 // Client which conforms to the OpenAPI3 specification for this service.
 type Client struct {
 	// The endpoint of the server conforming to this interface, with scheme,
-	// https://api.deepmap.com for example.
+	// https://api.deepmap.com for example. This can contain a path relative
+	// to the server, such as https://api.deepmap.com/dev-test, and all the
+	// paths in the swagger spec will be appended to the server.
 	Server string
 
 	// Doer for performing requests, typically a *http.Client with any
 	// customized settings, such as certificate chains.
 	Client HttpRequestDoer
 
-	// A callback for modifying requests which are generated before sending over
+	// A list of callbacks for modifying requests which are generated before sending over
 	// the network.
-	RequestEditor RequestEditorFn
+	RequestEditors []RequestEditorFn
 }
 
 // ClientOption allows setting custom parameters during construction
@@ -80,7 +83,7 @@ func WithHTTPClient(doer HttpRequestDoer) ClientOption {
 // called right before sending the request. This can be used to mutate the request.
 func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 	return func(c *Client) error {
-		c.RequestEditor = fn
+		c.RequestEditors = append(c.RequestEditors, fn)
 		return nil
 	}
 }
@@ -88,304 +91,236 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 	// GetByAlias request
-	GetByAlias(ctx context.Context, personId int) (*http.Response, error)
+	GetByAlias(ctx context.Context, personId int, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateAccount request  with any body
-	CreateAccountWithBody(ctx context.Context, personId int, contentType string, body io.Reader) (*http.Response, error)
+	CreateAccountWithBody(ctx context.Context, personId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateAccount(ctx context.Context, personId int, body CreateAccountJSONRequestBody) (*http.Response, error)
+	CreateAccount(ctx context.Context, personId int, body CreateAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAccountsOffer request
-	GetAccountsOffer(ctx context.Context, personId int) (*http.Response, error)
+	GetAccountsOffer(ctx context.Context, personId int, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SaveAccountAttributes request  with any body
-	SaveAccountAttributesWithBody(ctx context.Context, personId int, accountAlias string, contentType string, body io.Reader) (*http.Response, error)
+	SaveAccountAttributesWithBody(ctx context.Context, personId int, accountAlias string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SaveAccountAttributes(ctx context.Context, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody) (*http.Response, error)
+	SaveAccountAttributes(ctx context.Context, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetIdentification request
-	GetIdentification(ctx context.Context, personId int) (*http.Response, error)
+	GetIdentification(ctx context.Context, personId int, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostIdentification request  with any body
-	PostIdentificationWithBody(ctx context.Context, personId int, contentType string, body io.Reader) (*http.Response, error)
+	PostIdentificationWithBody(ctx context.Context, personId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PostIdentification(ctx context.Context, personId int, body PostIdentificationJSONRequestBody) (*http.Response, error)
+	PostIdentification(ctx context.Context, personId int, body PostIdentificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetChequeBytes request
-	GetChequeBytes(ctx context.Context, transactionId int, params *GetChequeBytesParams) (*http.Response, error)
+	GetChequeBytes(ctx context.Context, transactionId int, params *GetChequeBytesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendCheque request  with any body
-	SendChequeWithBody(ctx context.Context, transactionId int, params *SendChequeParams, contentType string, body io.Reader) (*http.Response, error)
+	SendChequeWithBody(ctx context.Context, transactionId int, params *SendChequeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SendCheque(ctx context.Context, transactionId int, params *SendChequeParams, body SendChequeJSONRequestBody) (*http.Response, error)
+	SendCheque(ctx context.Context, transactionId int, params *SendChequeParams, body SendChequeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPaymentHistoryByUser request
-	GetPaymentHistoryByUser(ctx context.Context, personId int, params *GetPaymentHistoryByUserParams) (*http.Response, error)
+	GetPaymentHistoryByUser(ctx context.Context, personId int, params *GetPaymentHistoryByUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPaymentHistoryTotalByUser request
-	GetPaymentHistoryTotalByUser(ctx context.Context, personId int, params *GetPaymentHistoryTotalByUserParams) (*http.Response, error)
+	GetPaymentHistoryTotalByUser(ctx context.Context, personId int, params *GetPaymentHistoryTotalByUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPaymentHistoryByTransaction request
-	GetPaymentHistoryByTransaction(ctx context.Context, transactionId int, params *GetPaymentHistoryByTransactionParams) (*http.Response, error)
+	GetPaymentHistoryByTransaction(ctx context.Context, transactionId int, params *GetPaymentHistoryByTransactionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPersonProfile request
-	GetPersonProfile(ctx context.Context, params *GetPersonProfileParams) (*http.Response, error)
+	GetPersonProfile(ctx context.Context, params *GetPersonProfileParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetLimits request
-	GetLimits(ctx context.Context, personId int, params *GetLimitsParams) (*http.Response, error)
+	GetLimits(ctx context.Context, personId int, params *GetLimitsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) GetByAlias(ctx context.Context, personId int) (*http.Response, error) {
+func (c *Client) GetByAlias(ctx context.Context, personId int, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetByAliasRequest(c.Server, personId)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateAccountWithBody(ctx context.Context, personId int, contentType string, body io.Reader) (*http.Response, error) {
+func (c *Client) CreateAccountWithBody(ctx context.Context, personId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAccountRequestWithBody(c.Server, personId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateAccount(ctx context.Context, personId int, body CreateAccountJSONRequestBody) (*http.Response, error) {
+func (c *Client) CreateAccount(ctx context.Context, personId int, body CreateAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAccountRequest(c.Server, personId, body)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetAccountsOffer(ctx context.Context, personId int) (*http.Response, error) {
+func (c *Client) GetAccountsOffer(ctx context.Context, personId int, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAccountsOfferRequest(c.Server, personId)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) SaveAccountAttributesWithBody(ctx context.Context, personId int, accountAlias string, contentType string, body io.Reader) (*http.Response, error) {
+func (c *Client) SaveAccountAttributesWithBody(ctx context.Context, personId int, accountAlias string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSaveAccountAttributesRequestWithBody(c.Server, personId, accountAlias, contentType, body)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) SaveAccountAttributes(ctx context.Context, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody) (*http.Response, error) {
+func (c *Client) SaveAccountAttributes(ctx context.Context, personId int, accountAlias string, body SaveAccountAttributesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSaveAccountAttributesRequest(c.Server, personId, accountAlias, body)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetIdentification(ctx context.Context, personId int) (*http.Response, error) {
+func (c *Client) GetIdentification(ctx context.Context, personId int, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetIdentificationRequest(c.Server, personId)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostIdentificationWithBody(ctx context.Context, personId int, contentType string, body io.Reader) (*http.Response, error) {
+func (c *Client) PostIdentificationWithBody(ctx context.Context, personId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostIdentificationRequestWithBody(c.Server, personId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostIdentification(ctx context.Context, personId int, body PostIdentificationJSONRequestBody) (*http.Response, error) {
+func (c *Client) PostIdentification(ctx context.Context, personId int, body PostIdentificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostIdentificationRequest(c.Server, personId, body)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetChequeBytes(ctx context.Context, transactionId int, params *GetChequeBytesParams) (*http.Response, error) {
+func (c *Client) GetChequeBytes(ctx context.Context, transactionId int, params *GetChequeBytesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetChequeBytesRequest(c.Server, transactionId, params)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) SendChequeWithBody(ctx context.Context, transactionId int, params *SendChequeParams, contentType string, body io.Reader) (*http.Response, error) {
+func (c *Client) SendChequeWithBody(ctx context.Context, transactionId int, params *SendChequeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendChequeRequestWithBody(c.Server, transactionId, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) SendCheque(ctx context.Context, transactionId int, params *SendChequeParams, body SendChequeJSONRequestBody) (*http.Response, error) {
+func (c *Client) SendCheque(ctx context.Context, transactionId int, params *SendChequeParams, body SendChequeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendChequeRequest(c.Server, transactionId, params, body)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetPaymentHistoryByUser(ctx context.Context, personId int, params *GetPaymentHistoryByUserParams) (*http.Response, error) {
+func (c *Client) GetPaymentHistoryByUser(ctx context.Context, personId int, params *GetPaymentHistoryByUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetPaymentHistoryByUserRequest(c.Server, personId, params)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetPaymentHistoryTotalByUser(ctx context.Context, personId int, params *GetPaymentHistoryTotalByUserParams) (*http.Response, error) {
+func (c *Client) GetPaymentHistoryTotalByUser(ctx context.Context, personId int, params *GetPaymentHistoryTotalByUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetPaymentHistoryTotalByUserRequest(c.Server, personId, params)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetPaymentHistoryByTransaction(ctx context.Context, transactionId int, params *GetPaymentHistoryByTransactionParams) (*http.Response, error) {
+func (c *Client) GetPaymentHistoryByTransaction(ctx context.Context, transactionId int, params *GetPaymentHistoryByTransactionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetPaymentHistoryByTransactionRequest(c.Server, transactionId, params)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetPersonProfile(ctx context.Context, params *GetPersonProfileParams) (*http.Response, error) {
+func (c *Client) GetPersonProfile(ctx context.Context, params *GetPersonProfileParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetPersonProfileRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetLimits(ctx context.Context, personId int, params *GetLimitsParams) (*http.Response, error) {
+func (c *Client) GetLimits(ctx context.Context, personId int, params *GetLimitsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetLimitsRequest(c.Server, personId, params)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
-	if c.RequestEditor != nil {
-		err = c.RequestEditor(ctx, req)
-		if err != nil {
-			return nil, err
-		}
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
 	}
 	return c.Client.Do(req)
 }
@@ -467,6 +402,7 @@ func NewCreateAccountRequestWithBody(server string, personId int, contentType st
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
 	return req, nil
 }
 
@@ -554,6 +490,7 @@ func NewSaveAccountAttributesRequestWithBody(server string, personId int, accoun
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
 	return req, nil
 }
 
@@ -634,6 +571,7 @@ func NewPostIdentificationRequestWithBody(server string, personId int, contentTy
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
 	return req, nil
 }
 
@@ -770,6 +708,7 @@ func NewSendChequeRequestWithBody(server string, transactionId int, params *Send
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
 	return req, nil
 }
 
@@ -1202,6 +1141,21 @@ func NewGetLimitsRequest(server string, personId int, params *GetLimitsParams) (
 	}
 
 	return req, nil
+}
+
+func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
+	req = req.WithContext(ctx)
+	for _, r := range c.RequestEditors {
+		if err := r(ctx, req); err != nil {
+			return err
+		}
+	}
+	for _, r := range additionalEditors {
+		if err := r(ctx, req); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ClientWithResponses builds on ClientInterface to offer response payloads

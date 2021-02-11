@@ -62,7 +62,7 @@ paths:
   # лимиты
   "/qw-limits/v1/persons/{personId}/actual-limits":
     $ref: "openapi/Limits.yaml"
-  #  история
+  # история
   "/payment-history/v2/persons/{personId}/payments":
     $ref: "openapi/Payments.yaml"
   "/payment-history/v2/persons/{personId}/payments/total":
@@ -82,3 +82,4 @@ paths:
   "/funding-sources/v2/persons/{personId}/accounts/{accountAlias}":
     $ref: "openapi/AccountAlias.yaml"
   # платежи
+  # "/sinap/providers/{id}/onlineCommission":

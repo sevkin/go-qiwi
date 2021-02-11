@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	BearerScopes = "Bearer.Scopes"
+)
+
 // Accounts defines model for Accounts.
 type Accounts struct {
 
@@ -29,7 +33,7 @@ type Accounts struct {
 		// Псевдоним банка
 		BankAlias *string `json:"bankAlias,omitempty"`
 
-		// Код валюты баланса (number-3 ISO-4217). Возвращаются балансы в следующих валютах - 643 - российский рубль - 840 - американский доллар - 978 - евро
+		// Код валюты баланса (number-3 ISO-4217). Возвращаются балансы в следующих валютах - 643 - российский рубль - 840 - американский доллар - 978 - евро - 398 - казахский тенге
 		Currency *int `json:"currency,omitempty"`
 
 		// Псевдоним банковского баланса
@@ -52,7 +56,14 @@ type Accounts struct {
 }
 
 // AccountsOffer defines model for AccountsOffer.
-type AccountsOffer map[string]interface{}
+type AccountsOffer []struct {
+
+	// Псевдоним счета
+	Alias *string `json:"alias,omitempty"`
+
+	// ID валюты счета
+	Currency *int `json:"currency,omitempty"`
+}
 
 // Identification defines model for Identification.
 type Identification struct {
@@ -644,15 +655,15 @@ type GetLimitsParams struct {
 	Types []string `json:"types"`
 }
 
-// CreateAccountRequestBody defines body for CreateAccount for application/json ContentType.
+// CreateAccountJSONRequestBody defines body for CreateAccount for application/json ContentType.
 type CreateAccountJSONRequestBody CreateAccountJSONBody
 
-// SaveAccountAttributesRequestBody defines body for SaveAccountAttributes for application/json ContentType.
+// SaveAccountAttributesJSONRequestBody defines body for SaveAccountAttributes for application/json ContentType.
 type SaveAccountAttributesJSONRequestBody SaveAccountAttributesJSONBody
 
-// PostIdentificationRequestBody defines body for PostIdentification for application/json ContentType.
+// PostIdentificationJSONRequestBody defines body for PostIdentification for application/json ContentType.
 type PostIdentificationJSONRequestBody PostIdentificationJSONBody
 
-// SendChequeRequestBody defines body for SendCheque for application/json ContentType.
+// SendChequeJSONRequestBody defines body for SendCheque for application/json ContentType.
 type SendChequeJSONRequestBody SendChequeJSONBody
 
